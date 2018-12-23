@@ -1,5 +1,9 @@
-import tkinter as tk
-from tkinter import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
 
 
 class World:
@@ -9,13 +13,15 @@ class World:
         self.parent['padx'] = 5
         self.parent['pady'] = 5
         self.parent.title("Q-Learning")
+        self.barriers = [tk.IntVar() for i in range(64)]
+        self.failing = [tk.IntVar() for i in range(64)]
 
         ## Gridworld LabelFrame
         self.world_frame = ttk.LabelFrame(master=self.parent, text="Gridworld")
         self.world_frame.grid(row=0, column=0, rowspan=100, sticky=tk.E + tk.N + tk.W, ipadx=5)
 
         # Tk Canvas for our little robot :)
-        self.world = tk.Canvas(master=self.world_frame, width=420, height=420)
+        self.world = tk.Canvas(master=self.world_frame, width=480, height=480)
         self.world.pack(padx=5, pady=5)
 
         ## Variable LabelFrame
@@ -54,17 +60,54 @@ class World:
         self.environment_frame = ttk.LabelFrame(master=self.parent, text="Environment")
         self.environment_frame.grid(row=1, column=1, sticky=tk.N + tk.E + tk.W, padx=5, ipady=5)
 
-        # test
-        self.environment_box = ttk.Combobox(master=self.environment_frame)
-        self.environment_box.grid(row=0, column=0, padx=5)
+        # Setting up walls (pop-up window)
+        self.barrier_button = ttk.Button(master=self.environment_frame, text="Open Barrier Editor",
+                                         command=self.barrier_edit)
+        self.barrier_button.grid(row=0, column=1, sticky=tk.E + tk.W)
+
+        # Setting up walls (label)
+        self.barrier_label = ttk.Label(master=self.environment_frame, text="Set Barriers:")
+        self.barrier_label.grid(row=0, column=0, sticky=tk.E)
+
+        # Setting up failing points (pop-up window)
+        self.failing_button = ttk.Button(master=self.environment_frame, text="Open Negative Reward Editor",
+                                         command=self.failing_edit)
+        self.failing_button.grid(row=1, column=1)
+
+        # Setting up failing points (label)
+        self.failing_label = ttk.Label(master=self.environment_frame, text="Set Negative Rewards:")
+        self.failing_label.grid(row=1, column=0, sticky=tk.E)
+
+        # Setting up succeeding points (pop-up window)
+        self.good_button = ttk.Button(master=self.environment_frame, text="Open Positive Reward Editor",
+                                       command=self.succeeding_edit)
+        self.good_button.grid(row=2, column=1, sticky=tk.E + tk.W)
+
+        # Setting up succeeding points (label)
+        self.good_label = ttk.Label(master=self.environment_frame, text="Set Positive Rewards:")
+        self.good_label.grid(row=2, column=0, sticky=tk.E)
 
         ## Simulation Settings LabelFrame
         self.simulation_frame = ttk.LabelFrame(master=self.parent, text="Simulation Settings")
-        self.simulation_frame.grid(row=2, column=1, sticky=tk.S + tk.W + tk.E, padx=5, ipady=5, ipadx=5)
+        self.simulation_frame.grid(row=2, column=1, sticky=tk.S + tk.W + tk.E, padx=5, ipady=5)
 
-        #test
-        self.barrier_label = ttk.Label(master=self.simulation_frame, text="Set Barriers")
-        self.simulation_box.grid(row=0, column=0, padx=5)
+    def barrier_edit(self):
+        temp = [0 for i in range(64)]
+        test = tk.Toplevel(self.parent)
+
+        barrier_frame = ttk.LabelFrame(master=test, text="Barrier Editor")
+        barrier_frame.pack(padx=5, pady=5)
+
+        for i in range(64):
+            temp[i] = ttk.Checkbutton(master=barrier_frame, variable=self.barriers[i])
+            temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+
+    def failing_edit(self):
+        for i in self.barriers:
+            print(i.get())
+
+    def succeeding_edit(self):
+        pass
 
     def update_gamma(self, gamma):
         self.gamma_box.delete(0, "end")
