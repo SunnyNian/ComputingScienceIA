@@ -91,23 +91,91 @@ class World:
         self.simulation_frame = ttk.LabelFrame(master=self.parent, text="Simulation Settings")
         self.simulation_frame.grid(row=2, column=1, sticky=tk.S + tk.W + tk.E, padx=5, ipady=5)
 
+        ## Console LabelFrame
+
     def barrier_edit(self):
+        # Initialize local variables
         temp = [0 for i in range(64)]
-        test = tk.Toplevel(self.parent)
+        test = tk.Toplevel(master=self.parent)
 
+        # master=test, both the LabelFrame and the legend outside
         barrier_frame = ttk.LabelFrame(master=test, text="Barrier Editor")
-        barrier_frame.pack(padx=5, pady=5)
+        barrier_frame.grid(row=0, column=0, rowspan=4, padx=5, pady=5)
 
+        example_negative = ttk.Checkbutton(master=test, text="Negative Reward", state=tk.DISABLED)
+        example_negative.grid(row=1, column=1, sticky=tk.W, padx=3)
+
+        example_positive = tk.Checkbutton(master=test, text="Positive Reward", state=tk.DISABLED)
+        example_positive.grid(row=2, column=1, sticky=tk.W)
+
+        # Place the CheckButtons. Check if they are already occupied, and by what type.
         for i in range(64):
-            temp[i] = ttk.Checkbutton(master=barrier_frame, variable=self.barriers[i])
-            temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+            if self.barriers[i].get() > 1:
+                if self.barriers[i].get() == 2:
+                    temp[i] = ttk.Checkbutton(master=barrier_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+                else:
+                    temp[i] = tk.Checkbutton(master=barrier_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+            else:
+                temp[i] = ttk.Checkbutton(master=barrier_frame, variable=self.barriers[i])
+                temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
 
     def failing_edit(self):
-        for i in self.barriers:
-            print(i.get())
+        # Initialize local variables
+        temp = [0 for i in range(64)]
+        test = tk.Toplevel(master=self.parent)
+
+        # master=test, both the LabelFrame and the legend outside
+        negative_frame = ttk.LabelFrame(master=test, text="Negative Reward Editor")
+        negative_frame.grid(row=0, column=0, rowspan=4, padx=5, pady=5)
+
+        example_negative = ttk.Checkbutton(master=test, text="Barrier", state=tk.DISABLED)
+        example_negative.grid(row=1, column=1, sticky=tk.W, padx=3)
+
+        example_positive = tk.Checkbutton(master=test, text="Positive Reward", state=tk.DISABLED)
+        example_positive.grid(row=2, column=1, sticky=tk.W)
+
+        # Place the CheckButtons. Check if they are already occupied, and by what type.
+        for i in range(64):
+            if self.barriers[i].get() == 1 or self.barriers[i].get() == 3:
+                if self.barriers[i].get() == 1:
+                    temp[i] = ttk.Checkbutton(master=negative_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8), padx=2, pady=2)
+                else:
+                    temp[i] = tk.Checkbutton(master=negative_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+            else:
+                temp[i] = ttk.Checkbutton(master=negative_frame, variable=self.barriers[i], offvalue=0, onvalue=2)
+                temp[i].grid(row=1 + (i % 8), column=1 + (i // 8), padx=2, pady=2)
 
     def succeeding_edit(self):
-        pass
+        # Initialize local variables.
+        temp = [0 for i in range(64)]
+        test = tk.Toplevel(master=self.parent)
+
+        # master=test, both the LabelFrame and the legend outside
+        positive_frame = ttk.LabelFrame(master=test, text="Positive Reward Editor")
+        positive_frame.grid(row=0, column=0, rowspan=4, padx=5, pady=5)
+
+        example_negative = ttk.Checkbutton(master=test, text="Barrier", state=tk.DISABLED)
+        example_negative.grid(row=1, column=1, sticky=tk.W, padx=3)
+
+        example_positive = tk.Checkbutton(master=test, text="Negative Reward", state=tk.DISABLED)
+        example_positive.grid(row=2, column=1, sticky=tk.W)
+
+        # Place the CheckButtons. Check if they are already occupied, and by what type.
+        for i in range(64):
+            if self.barriers[i].get() == 2 or self.barriers[i].get() == 1:
+                if self.barriers[i].get() == 1:
+                    temp[i] = ttk.Checkbutton(master=positive_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8), padx=2, pady=2)
+                else:
+                    temp[i] = tk.Checkbutton(master=positive_frame, state=tk.DISABLED)
+                    temp[i].grid(row=1 + (i % 8), column=1 + (i // 8))
+            else:
+                temp[i] = ttk.Checkbutton(master=positive_frame, variable=self.barriers[i], offvalue=0, onvalue=3)
+                temp[i].grid(row=1 + (i % 8), column=1 + (i // 8), padx=2, pady=2)
 
     def update_gamma(self, gamma):
         self.gamma_box.delete(0, "end")
@@ -157,7 +225,9 @@ class World:
             self.alpha_box.delete(0, "end")
             self.alpha_box.insert(0, 0.00)
 
-    def console_error(self):
+    def console_error(self, type_, description):
+        if type_ == 0:
+            self.text.insert(0, "#VALUE! {}".format(description))
         pass
 
 
